@@ -1,0 +1,49 @@
+{% from "macros.html" import show_flashed_messages %}
+
+{% extends "layout.html" %}
+{% block content %}
+
+<div id="content">
+
+ {{ show_flashed_messages() }}
+
+
+  <div class="alert alert-info" role="alert">
+    <p>
+     Make sure your server is running and has the get5 server plugins installed first.
+     See <a href="https://github.com/splewis/get5/wiki/Step-by-step-installation-guide">the get5 wiki</a> for help installing the get5 and get5_apistats plugins.
+    </p>
+  </div>
+
+  <form role="form" action="" method="post" class="form-horizontal">
+
+      {{ form.csrf_token }}
+
+      <div class="form-group">
+      {{ form.servers.label(class="col-sm-2 control-label") }}
+      <span style="display: block; clear:left" class="col-sm-2">{{ form.servers.description}}</span>
+
+        <div class="col-sm-7">
+          {{ form.servers(class="form-control", placeholder="") }}
+        </div>
+        <div class="col-sm-7">
+        </div>
+      </div>
+
+
+      <div class="input submit col-sm-offset-1">
+        <input type="submit" class="btn btn-primary" value="Create Server">
+      </div>
+      <br>
+
+  </form>
+
+
+</div>
+
+<script>
+  $(document).ready(function () {
+  $("#server_create").parent().addClass("active"); })
+</script>
+
+{% endblock %}

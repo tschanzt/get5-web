@@ -4,10 +4,14 @@ import util
 
 from flask import Blueprint, request, render_template, flash, g, redirect
 
-from wtforms import Form, validators, StringField, IntegerField, BooleanField
+from wtforms import Form, validators, StringField, IntegerField, BooleanField, TextAreaField
 
 
 server_blueprint = Blueprint('server', __name__)
+
+
+class MultiServerForm(Form):
+    servers = TextAreaField('Serverlist', description="ip,port,rcon_pw,public")
 
 
 class ServerForm(Form):
@@ -31,6 +35,41 @@ class ServerForm(Form):
                                                       max=GameServer.rcon_password.type.length)])
 
     public_server = BooleanField('Publicly usable server')
+
+
+@server_blueprint.route('/server/masscreate', methods=['GET', 'POST'])
+def server_masscreate():
+    if not g.user:
+        return redirect('/login')
+    if not g.user.admin:
+        return redirect('/server/create')
+    form = MultiServerForm(request.form)
+    if request.method == 'POST':
+        if form.validate():
+            mock = config_setting('TESTING')
+
+            servers = form.data.get('servers', '')
+            serv_list = servers.split('\n')
+            for serv in serv_list:
+                serv_info = serv.split(',')
+                if not len(serv_info) == 3:
+                    continue
+                server = GameServer.create(g.user,
+                                           '',
+                                           serv_info[0],
+                                           serv_info[1],
+                                           serv_info[2],
+                                           False
+                                           )
+                if mock or util.check_server_connection(server):
+                    db.session.commit()
+                    app.logger.info(
+                        'User {} created server {}'.format(g.user.id, server.id))
+                else:
+                    db.session.remove()
+        return redirect('/myservers')
+    return render_template('server_create_multi.html', user=g.user, form=form,
+                           edit=False, is_admin=g.user.admin)
 
 
 @server_blueprint.route('/server/create', methods=['GET', 'POST'])

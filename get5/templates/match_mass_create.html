@@ -1,0 +1,38 @@
+{% from "macros.html" import show_flashed_messages %}
+
+{% extends "layout.html" %}
+{% block content %}
+
+<div id="content">
+
+ {{ show_flashed_messages() }}
+
+  <form role="form" action="" method="post" class="form-horizontal">
+
+      {{ form.csrf_token }}
+
+      <div class="form-group">
+        {{ form.matches.label(class="col-sm-2 control-label") }}
+          <span style="display: block; clear:left" class="col-sm-2">{{ form.matches.description}}</span>
+
+          <div class="col-sm-4">
+            {{ form.matches(class="form-control input-sm") }}
+          </div>
+      </div>
+
+      <div class="input submit col-sm-offset-1">
+        <input type="submit" class="btn btn-primary" value="Create Matches">
+      </div>
+
+      <br>
+
+  </form>
+
+</div>
+
+<script>
+  $(document).ready(function () {
+  $("#match_create").parent().addClass("active"); })
+</script>
+
+{% endblock %}

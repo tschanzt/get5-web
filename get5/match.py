@@ -9,7 +9,7 @@ import util
 from wtforms import (
     Form, widgets, validators,
     StringField, RadioField,
-    SelectField, ValidationError, SelectMultipleField)
+    SelectField, ValidationError, SelectMultipleField, TextAreaField)
 
 match_blueprint = Blueprint('match', __name__)
 
@@ -38,6 +38,10 @@ def mappool_validator(form, field):
     if len(form.veto_mappool.data) < max_maps:
         raise ValidationError(
             'You must have at least {} maps selected to do a Bo{}'.format(max_maps, max_maps))
+
+
+class MatchMultiForm(Form):
+        matches = TextAreaField('Matchlist', description="team1,team2,seriestype")
 
 
 class MatchForm(Form):
@@ -124,6 +128,47 @@ class MatchForm(Form):
                 (server_id, GameServer.query.get(server_id).get_display()))
 
         self.server_id.choices += server_tuples
+
+
+def get_next_empty_server():
+    free_server = GameServer.query.order_by(GameServer.port).filter_by(in_use=False).first()
+    return free_server
+
+
+@match_blueprint.route('/match/masscreate', methods=['GET', 'POST'])
+def match_masscreate():
+    if not g.user:
+        return redirect('/login')
+    if not g.user.admin:
+        return redirect('/match/create')
+    form = MatchMultiForm(request.form)
+
+    if request.method == 'POST':
+        if form.validate():
+            match_list = form.data['matches'].split('\n')
+            for item in match_list:
+                split_parts = item.split(',')
+                if not len(split_parts) == 3:
+                    continue
+                server = get_next_empty_server()
+                t1_name, t2_name, bo_whatever = split_parts
+                max_maps = int(form.series_type.data[2])
+                team1 = Team.query.filter_by(name=t1_name).first()
+                team2 = Team.query.filter_by(name=t2_name).first()
+                default_mapchoices = config_setting('DEFAULT_MAPLIST')
+                match = Match.create(
+                    g.user, team1.id, team2.id,
+                    team1.name, team2.name,
+                    max_maps, False, '',
+                    default_mapchoices, server.id
+                )
+                server.in_use = True
+                match.plugin_version = 'unknown'
+                db.session.commit()
+                redirect('/matches')
+    return render_template(
+        'match_mass_create.html', form=form, user=g.user, teams=g.user.teams,
+    )
 
 
 @match_blueprint.route('/match/create', methods=['GET', 'POST'])

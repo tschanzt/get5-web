@@ -42,6 +42,18 @@
             <li><a id="team_create" href="/team/create">Create a Team</a></li>
             <li><a id="myservers" href="/myservers">My Servers</a></li>
             <li><a id="server_create" href="/server/create">Add a Server</a></li>
+            <li>
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="mass-create" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        Mass Create
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="mass-create">
+                        <li><a id="server_mass_create" href="/server/masscreate">Masscreate Servers</a></li>
+                        <li><a id="match_mass_create" href="/match/masscreate">Masscreate Matches</a></li>
+                    </ul>
+                </div>
+            </li>
             <li><a href="/logout">Logout</a></li>
             {% else %}
             <li><a href="/login">  <img src="/static/img/login_small.png" height="18"/></a></li>
