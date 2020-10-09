@@ -29,6 +29,10 @@ def valid_auth(form, field):
         raise ValidationError('Invalid Steam ID')
 
 
+class TeamMassForm(Form):
+    teams = TextAreaField('Teams')
+
+
 class TeamForm(Form):
     name = StringField('Team Name', validators=[
         validators.required(),
@@ -60,7 +64,6 @@ class TeamForm(Form):
             auths.append(self.data[key])
 
         return auths
-
 
 @team_blueprint.route('/team/create', methods=['GET', 'POST'])
 def team_create():
@@ -185,7 +188,10 @@ def teams_user(userid):
     else:
         # Render teams page
         my_teams = (g.user is not None and userid == g.user.id)
-        teams = user.teams.paginate(page, 20)
+        if g.user.admin:
+            teams = Team.all().paginate(page, 20)
+        else:
+            teams = user.teams.paginate(page, 20)
         return render_template(
             'teams.html', user=g.user, teams=teams, my_teams=my_teams,
                                page=page, owner=user)

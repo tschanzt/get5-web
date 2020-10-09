@@ -96,11 +96,14 @@ class MatchForm(Form):
 
         if self.team2_id.choices is None:
             self.team2_id.choices = []
-
-        team_ids = [team.id for team in user.teams]
-        for team in Team.query.filter_by(public_team=True):
-            if team.id not in team_ids:
-                team_ids.append(team.id)
+        team_ids = []
+        if user.admin:
+            team_ids = [team.id for team in Team.all()]
+        else:
+            team_ids = [team.id for team in user.teams]
+            for team in Team.query.filter_by(public_team=True):
+                if team.id not in team_ids:
+                    team_ids.append(team.id)
 
         team_tuples = []
         for teamid in team_ids:
@@ -114,14 +117,18 @@ class MatchForm(Form):
             self.server_id.choices = []
 
         server_ids = []
-        for s in user.servers:
-            if not s.in_use:
-                server_ids.append(s.id)
+        if user.admin:
+            for s in GameServer.all():
+                if not s.in_use:
+                    server_ids.append(s.id)
+        else:
+            for s in user.servers:
+                if not s.in_use:
+                    server_ids.append(s.id)
 
-        for s in GameServer.query.filter_by(public_server=True):
-            if not s.in_use and s.id not in server_ids:
-                server_ids.append(s.id)
-
+            for s in GameServer.query.filter_by(public_server=True):
+                if not s.in_use and s.id not in server_ids:
+                    server_ids.append(s.id)
         server_tuples = []
         for server_id in server_ids:
             server_tuples.append(
@@ -458,7 +465,10 @@ def matches():
 def matches_user(userid):
     user = User.query.get_or_404(userid)
     page = util.as_int(request.values.get('page'), on_fail=1)
-    matches = user.matches.order_by(-Match.id).paginate(page, 20)
+    if user.admin:
+        matches = Match.all().order_by(-Match.id).paginate(page, 20)
+    else:
+        matches = user.matches.order_by(-Match.id).paginate(page, 20)
     is_owner = (g.user is not None) and (userid == g.user.id)
     return render_template('matches.html', user=g.user, matches=matches,
                            my_matches=is_owner, all_matches=False, match_owner=user, page=page)

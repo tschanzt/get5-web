@@ -22,8 +22,8 @@
         <th>Team 1</th>
         <th>Team 2</th>
         <th>Status</th>
-        {% if my_matches %}
         <th>Server</th>
+        {% if my_matches %}
         <th></th>
         {% else %}
         <th>Owner</th>
@@ -50,8 +50,8 @@
           {{ match.get_status_string() }}
         </td>
 
-        {% if my_matches %}
         <td>{% if match.get_server() is not none   %} {{ match.get_server().get_display() }} {% endif %}</td>
+        {% if my_matches %}
         <td>
           {% if match.pending() or match.live() %}
           <a href="/match/{{match.id}}/cancel" class="btn btn-danger btn-xs align-right">Cancel</a>

@@ -173,8 +173,10 @@ def server_delete(serverid):
 def myservers():
     if not g.user:
         return redirect('/login')
-
-    servers = GameServer.query.filter_by(
-        user_id=g.user.id).order_by(-GameServer.id).limit(50)
+    if g.user.admin:
+        servers = GameServer.all().order_by(-GameServer.id)
+    else:
+        servers = GameServer.query.filter_by(
+            user_id=g.user.id).order_by(-GameServer.id).limit(50)
 
     return render_template('servers.html', user=g.user, servers=servers)
