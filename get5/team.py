@@ -28,11 +28,6 @@ def valid_auth(form, field):
     else:
         raise ValidationError('Invalid Steam ID')
 
-
-class TeamMassForm(Form):
-    teams = TextAreaField('Teams')
-
-
 class TeamForm(Form):
     name = StringField('Team Name', validators=[
         validators.required(),
