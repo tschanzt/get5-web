@@ -118,7 +118,7 @@ class MatchForm(Form):
 
         server_ids = []
         if user.admin:
-            for s in GameServer.all():
+            for s in GameServer.query:
                 if not s.in_use:
                     server_ids.append(s.id)
         else:
