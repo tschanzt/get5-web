@@ -98,7 +98,7 @@ class MatchForm(Form):
             self.team2_id.choices = []
         team_ids = []
         if user.admin:
-            team_ids = [team.id for team in Team.all()]
+            team_ids = Team.query.all()
         else:
             team_ids = [team.id for team in user.teams]
             for team in Team.query.filter_by(public_team=True):
