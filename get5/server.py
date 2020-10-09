@@ -174,7 +174,7 @@ def myservers():
     if not g.user:
         return redirect('/login')
     if g.user.admin:
-        servers = GameServer.query.all().order_by(-GameServer.id)
+        servers = GameServer.query.order_by(-GameServer.id)
     else:
         servers = GameServer.query.filter_by(
             user_id=g.user.id).order_by(-GameServer.id).limit(50)

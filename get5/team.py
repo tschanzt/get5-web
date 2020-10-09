@@ -184,7 +184,7 @@ def teams_user(userid):
         # Render teams page
         my_teams = (g.user is not None and userid == g.user.id)
         if g.user.admin:
-            teams = Team.query.all().paginate(page, 20)
+            teams = Team.query.paginate(page, 20)
         else:
             teams = user.teams.paginate(page, 20)
         return render_template(

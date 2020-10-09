@@ -466,7 +466,7 @@ def matches_user(userid):
     user = User.query.get_or_404(userid)
     page = util.as_int(request.values.get('page'), on_fail=1)
     if user.admin:
-        matches = Match.query.all().order_by(-Match.id).paginate(page, 20)
+        matches = Match.query.order_by(-Match.id).paginate(page, 20)
     else:
         matches = user.matches.order_by(-Match.id).paginate(page, 20)
     is_owner = (g.user is not None) and (userid == g.user.id)
